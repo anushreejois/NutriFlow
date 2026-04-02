@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* FORCE VISIBLE TEXT DEFAULTS */
+@layer base {
+  body {
+    @apply text-gray-900 bg-sage-50; /* Default text is DARK GRAY */
+  }
+  
+  /* When dark mode is active, force text to be WHITE */
+  .dark body {
+    @apply text-gray-100 bg-gray-900;
+  }
+}
