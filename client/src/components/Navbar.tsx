@@ -45,7 +45,7 @@ const Navbar = () => {
 
   // Close mobile drawer on navigation
   useEffect(() => {
-    setIsOpen(false);
+    setTimeout(() => setIsOpen(false), 0);
   }, [location.pathname]);
 
   const linkStyle = (path: string) => {

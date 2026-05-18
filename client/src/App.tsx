@@ -88,11 +88,12 @@ function App() {
   useEffect(() => {
     const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
     if (appId && !window.OneSignalInitialized) {
+      window.OneSignalInitialized = true;
       OneSignal.init({ 
         appId, 
         allowLocalhostAsSecureOrigin: true 
-      }).then(() => {
-        window.OneSignalInitialized = true;
+      }).catch((e) => {
+        console.error("OneSignal init error:", e);
       });
     }
   }, []);

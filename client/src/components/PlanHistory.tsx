@@ -4,19 +4,19 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, ChevronRight, FileText, Loader2, Utensils, Dumbbell } from "lucide-react";
 import { getPlanHistory } from "../services/api";
-import { useUser } from "@clerk/clerk-react"; // Integrated Clerk context
+
 
 const PlanHistory = () => {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
-  const { user } = useUser(); // Real-time safe session access
 
   useEffect(() => {
     const fetchHistory = async () => {
-      if (user?.id) {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+      if (userInfo._id) {
         try {
-          const data = await getPlanHistory(user.id);
+          const data = await getPlanHistory(userInfo._id);
           setPlans(data);
         } catch (error) {
           console.error("Failed to fetch history:", error);
@@ -28,7 +28,7 @@ const PlanHistory = () => {
       }
     };
     fetchHistory();
-  }, [user]);
+  }, []);
 
   // --- SAFE PARSING UTILITY ---
   const parsePlan = (aiString: string) => {

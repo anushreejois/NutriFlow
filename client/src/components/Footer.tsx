@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Link } from "react-router-dom";
-import { Heart, Github, Linkedin, Mail, ArrowRight, Sparkles } from "lucide-react";
+import { Heart, Github, Linkedin, Mail, ArrowRight } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();

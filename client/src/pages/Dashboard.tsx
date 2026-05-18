@@ -59,7 +59,7 @@ const Dashboard = () => {
     if (!adjustment || !plan) return;
     setIsAdjusting(true);
     try {
-      const updatedPlan = await adjustPlan(plan, adjustment);
+      const updatedPlan = await adjustPlan(plan, adjustment, lastUsedData);
       setPlan(updatedPlan); 
       
       // AUTO-SAVE: Save the updated/adjusted version too
@@ -97,7 +97,7 @@ const Dashboard = () => {
           </div>
 
           <AnimatePresence mode="wait">
-            {activeTab === "daily" && (
+            {activeTab === "daily" ? (
               <motion.div key="daily" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                   {!plan ? (
                     <HealthForm onSubmit={handleGenerate} isLoading={loading} />
@@ -136,8 +136,7 @@ const Dashboard = () => {
                     </div>
                   )}
               </motion.div>
-            )}
-            {activeTab === "history" && (
+            ) : (
               <motion.div key="history" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <PlanHistory />
               </motion.div>

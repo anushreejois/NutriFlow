@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { motion } from "framer-motion";
-import { Heart, Users, ShieldCheck, Github, Linkedin, Cpu, Globe, Mail, ArrowRight, Database, MessageSquare, Sparkles } from "lucide-react";
+import { Heart, Users, ShieldCheck, Github, Linkedin, Cpu, Globe, ArrowRight, Database, MessageSquare, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const About = () => {

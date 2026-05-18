@@ -42,7 +42,7 @@ export const generatePlan = async (userData: any, explicitUserId?: string) => {
   }
 };
 
-export const adjustPlan = async (currentPlan: any, adjustmentRequest: string, explicitUserId?: string) => {
+export const adjustPlan = async (currentPlan: any, adjustmentRequest: string, formData: any, explicitUserId?: string) => {
   try {
     const userInfo = localStorage.getItem('userInfo');
     const dbUserId = explicitUserId || (userInfo ? JSON.parse(userInfo)._id : null);
@@ -50,6 +50,7 @@ export const adjustPlan = async (currentPlan: any, adjustmentRequest: string, ex
     const response = await axios.post(`${API_URL}/plans/adjust-plan`, {
       currentPlan,
       adjustmentRequest,
+      formData,
       userId: dbUserId 
     });
     return response.data;

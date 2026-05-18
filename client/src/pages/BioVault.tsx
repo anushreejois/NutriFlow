@@ -2,10 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Utensils, Dumbbell, Calendar, X, Activity, Target, Trash2, Clock, Sparkles, Search, AlertTriangle } from "lucide-react";
+import { Utensils, Dumbbell, X, Trash2, Sparkles, Search, AlertTriangle } from "lucide-react";
 import axios from "axios";
 import { useToast } from "../components/ToastContext";
-import { BioVaultSkeleton } from "../components/Skeleton";
 
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';

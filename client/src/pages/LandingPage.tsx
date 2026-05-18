@@ -3,7 +3,7 @@
 import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Heart, Sparkles, ShieldCheck, Zap, MessageSquare, Activity, ChevronDown, UserCheck, ClipboardList, Brain } from "lucide-react";
+import { ArrowRight, Heart, Sparkles, ShieldCheck, MessageSquare, Activity, ChevronDown, UserCheck, ClipboardList, Brain } from "lucide-react";
 import { useRef, useState } from "react";
 
 const LandingPage = () => {

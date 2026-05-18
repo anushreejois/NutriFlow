@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { User, Scale, Ruler, Target, Leaf, Activity, Save } from "lucide-react";
 import { getUserProfile, updateUserProfile } from "../services/api";
 import { useToast } from "../components/ToastContext";

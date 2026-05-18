@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Activity, User, Scale, Ruler, Target, Heart, Sparkles, Venus, Mars, Stethoscope, AlertTriangle } from "lucide-react";
 import { useUser } from "@clerk/clerk-react"; // Integrated Clerk context hook
@@ -16,16 +16,17 @@ const HealthForm = ({ onSubmit, isLoading }: HealthFormProps) => {
 
   // Initialize with values saved locally to ensure the user never faces blank inputs
   const [formData, setFormData] = useState(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
     const savedMetrics = JSON.parse(localStorage.getItem("nutriflow_user_metrics") || "{}");
     return {
-      gender: savedMetrics.gender || "female", 
-      age: savedMetrics.age || "24", // Healthy baseline default to avoid payload string conversion errors
-      weight: savedMetrics.weight || "68",
-      height: savedMetrics.height || "178",
+      gender: userInfo.gender || savedMetrics.gender || "female", 
+      age: userInfo.age || savedMetrics.age || "24", 
+      weight: userInfo.weight || savedMetrics.weight || "68",
+      height: userInfo.height || savedMetrics.height || "178",
       cyclePhase: savedMetrics.cyclePhase || "follicular", 
-      activityLevel: savedMetrics.activityLevel || "moderate",
-      goal: savedMetrics.goal || "balance",
-      dietary: savedMetrics.dietary || "standard",
+      activityLevel: userInfo.activityLevel || savedMetrics.activityLevel || "moderate",
+      goal: userInfo.goal || savedMetrics.goal || "balance",
+      dietary: userInfo.dietary || savedMetrics.dietary || "standard",
       condition: savedMetrics.condition || "none", 
     };
   });

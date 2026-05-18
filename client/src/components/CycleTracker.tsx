@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Droplets, AlertCircle, Settings2, CheckCircle2, Sparkles } from "lucide-react";
+import { Droplets, Settings2, CheckCircle2, Sparkles } from "lucide-react";
 
 const CycleTracker = () => {
   const user = JSON.parse(localStorage.getItem("userInfo") || "{}");
