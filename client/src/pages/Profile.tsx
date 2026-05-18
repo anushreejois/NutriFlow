@@ -2,8 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Scale, Ruler, Target, Leaf, Activity, CheckCircle2, Save } from "lucide-react";
+import { User, Scale, Ruler, Target, Leaf, Activity, Save } from "lucide-react";
 import { getUserProfile, updateUserProfile } from "../services/api";
+import { useToast } from "../components/ToastContext";
 
 const Profile = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,7 @@ const Profile = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const { showToast } = useToast();
 
   const localUser = JSON.parse(localStorage.getItem("userInfo") || "{}");
 
@@ -58,10 +59,9 @@ const Profile = () => {
       
       localStorage.setItem("userInfo", JSON.stringify(updatedUser));
       
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+      showToast("Biological Profile Updated!");
     } catch (error) {
-      alert("Failed to update profile. Please try again.");
+      showToast("Failed to update profile. Please try again.", "error");
     } finally {
       setSaving(false);
     }
@@ -73,20 +73,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-sage-50 dark:bg-gray-950 pt-32 pb-20 px-4 transition-colors relative">
-      
-      <AnimatePresence>
-        {showSuccess && (
-          <motion.div 
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 20 }}
-            exit={{ opacity: 0, y: -50 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] bg-emerald-600 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-emerald-400"
-          >
-            <CheckCircle2 size={20} />
-            <span className="font-bold">Biological Profile Updated!</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">

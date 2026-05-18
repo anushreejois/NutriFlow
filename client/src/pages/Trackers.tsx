@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import CycleTracker from "../components/CycleTracker";
 import HabitTracker from "../components/HabitTracker"; 
 import WeeklyProgress from "../components/WeeklyProgress"; 
-import WorkoutTracker from "../components/WorkoutTracker"; 
-import { Target, BarChart3 } from "lucide-react";
+import WorkoutTracker from "../components/WorkoutTracker";
+import ResetProgram from "../components/ResetProgram";
+import { Target, BarChart3, Flame } from "lucide-react";
 import { getWeeklyStats } from "../services/api";
 
 const Trackers = () => {
@@ -83,6 +84,15 @@ const Trackers = () => {
           <div className="flex-grow">
             <WeeklyProgress data={weeklyData} />
           </div>
+        </section>
+
+        {/* RESET CHALLENGE PROGRAM */}
+        <section className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 md:p-10 border border-sage-100 dark:border-sage-800 shadow-xl">
+          <div className="flex items-center gap-2 mb-6">
+            <Flame className="text-orange-500" size={24} />
+            <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-wider">Reset Challenge</h2>
+          </div>
+          <ResetProgram />
         </section>
 
       </div>

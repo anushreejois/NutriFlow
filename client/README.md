@@ -1,73 +1,100 @@
-# React + TypeScript + Vite
+# NutriFlow AI 🌿
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**AI-powered nutrition and wellness platform that syncs with your biological rhythm.**
 
-Currently, two official plugins are available:
+NutriFlow uses Llama-3 AI to generate personalized meal plans, workout protocols, and wellness recommendations adapted to your hormonal cycle phases, body metrics, and lifestyle goals.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **🧠 AI Plan Generation** — Personalized meal + workout plans based on your biometrics
+- **🤖 NutriBot** — Real-time AI chat assistant for health questions
+- **🏦 Bio-Vault** — Chronological archive of all generated protocols
+- **📊 Trackers** — Water intake, habit logging, cycle prediction, workout logging
+- **🔥 108-Day Challenge** — Progressive daily wellness challenges with streak tracking
+- **📓 Routine** — Daily routine management with gym splits and weekly summaries
+- **📚 Health Library** — Community blog for sharing wellness insights
+- **🌙 Dark Mode** — Full dark mode support with system preference detection
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS, Framer Motion |
+| Backend | Node.js, Express, MongoDB (Mongoose) |
+| AI Engine | Groq SDK (Llama-3.3-70b) |
+| Auth | Clerk (SSO, Social Login) |
+| Notifications | OneSignal |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Prerequisites
+- Node.js 18+
+- MongoDB instance (local or Atlas)
+- Groq API key
+- Clerk account
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Setup
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-repo/nutriflow-ai.git
+   cd nutriflow-ai
+   ```
+
+2. **Install dependencies**
+   ```bash
+   cd client && npm install
+   cd ../server && npm install
+   ```
+
+3. **Configure environment variables**
+   
+   Client (`.env`):
+   ```
+   VITE_CLERK_PUBLISHABLE_KEY=your_clerk_key
+   VITE_API_URL=http://localhost:5000/api
+   VITE_ONESIGNAL_APP_ID=your_onesignal_id
+   ```
+   
+   Server (`.env`):
+   ```
+   MONGO_URI=your_mongodb_uri
+   GROQ_API_KEY=your_groq_key
+   GROK_BOT_KEY=your_bot_key
+   JWT_SECRET=your_jwt_secret
+   CLIENT_URL=http://localhost:5173
+   ```
+
+4. **Run development servers**
+   ```bash
+   # Terminal 1: Backend
+   cd server && npm run dev
+   
+   # Terminal 2: Frontend
+   cd client && npm run dev
+   ```
+
+## Project Structure
+
+```
+nutriflow-ai/
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Route-level pages
+│   │   ├── services/       # API service layer
+│   │   └── App.tsx         # Root component & routing
+│   └── tailwind.config.js
+├── server/                 # Express backend
+│   ├── src/
+│   │   ├── config/         # Database config
+│   │   ├── models/         # Mongoose schemas
+│   │   ├── routes/         # API endpoints
+│   │   └── services/       # AI service (Groq)
+│   └── index.ts
+└── README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## License
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+MIT © Anushree H S Jois

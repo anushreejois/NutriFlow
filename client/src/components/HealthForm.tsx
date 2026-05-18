@@ -1,8 +1,10 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Activity, User, Scale, Ruler, Target, Heart, Sparkles, Venus, Mars, Stethoscope, AlertTriangle } from "lucide-react";
+import { useUser } from "@clerk/clerk-react"; // Integrated Clerk context hook
 
 interface HealthFormProps {
   onSubmit: (data: any) => void;
@@ -10,42 +12,35 @@ interface HealthFormProps {
 }
 
 const HealthForm = ({ onSubmit, isLoading }: HealthFormProps) => {
-  const savedUser = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  const { user } = useUser();
 
-  const [formData, setFormData] = useState({
-    gender: savedUser.gender || "female", 
-    age: savedUser.age || "",
-    weight: savedUser.weight || "",
-    height: savedUser.height || "",
-    cyclePhase: "follicular", 
-    activityLevel: savedUser.activityLevel || "moderate",
-    goal: savedUser.goal || "balance",
-    dietary: savedUser.dietary || savedUser.dietaryPreference || "none",
-    condition: "none", // <--- NEW: Optional Medical Condition
+  // Initialize with values saved locally to ensure the user never faces blank inputs
+  const [formData, setFormData] = useState(() => {
+    const savedMetrics = JSON.parse(localStorage.getItem("nutriflow_user_metrics") || "{}");
+    return {
+      gender: savedMetrics.gender || "female", 
+      age: savedMetrics.age || "24", // Healthy baseline default to avoid payload string conversion errors
+      weight: savedMetrics.weight || "68",
+      height: savedMetrics.height || "178",
+      cyclePhase: savedMetrics.cyclePhase || "follicular", 
+      activityLevel: savedMetrics.activityLevel || "moderate",
+      goal: savedMetrics.goal || "balance",
+      dietary: savedMetrics.dietary || "standard",
+      condition: savedMetrics.condition || "none", 
+    };
   });
 
-  useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-    if (userInfo && userInfo._id) {
-      setFormData((prev) => ({
-        ...prev,
-        gender: userInfo.gender || prev.gender,
-        age: userInfo.age || prev.age,
-        weight: userInfo.weight || prev.weight,
-        height: userInfo.height || prev.height,
-        activityLevel: userInfo.activityLevel || prev.activityLevel,
-        goal: userInfo.goal || prev.goal,
-        dietary: userInfo.dietary || userInfo.dietaryPreference || prev.dietary,
-      }));
-    }
-  }, []);
-
+  // Automatically monitor and persist input updates to keep states synchronous
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const updatedFields = { ...formData, [e.target.name]: e.target.value };
+    setFormData(updatedFields);
+    localStorage.setItem("nutriflow_user_metrics", JSON.stringify(updatedFields));
   };
 
   const setGender = (gender: "female" | "male") => {
-    setFormData({ ...formData, gender });
+    const updatedFields = { ...formData, gender };
+    setFormData(updatedFields);
+    localStorage.setItem("nutriflow_user_metrics", JSON.stringify(updatedFields));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,7 +57,7 @@ const HealthForm = ({ onSubmit, isLoading }: HealthFormProps) => {
       <div className="text-center mb-8">
         <h2 className="text-2xl font-black text-sage-900 dark:text-white mb-2">Generate Your Daily Plan</h2>
         <p className="text-sage-600 dark:text-sage-400">
-          {savedUser.age ? "Review your stats and generate your AI plan." : "Tell AI about your body today."}
+          {user ? `Welcome, ${user.firstName || "Anushree"}. Customize your current biometrics.` : "Tell AI about your body today."}
         </p>
       </div>
 
@@ -134,7 +129,7 @@ const HealthForm = ({ onSubmit, isLoading }: HealthFormProps) => {
           />
         </div>
 
-        {/* --- NEW: OPTIONAL MEDICAL CONDITION --- */}
+        {/* --- OPTIONAL MEDICAL CONDITION --- */}
         <div className="pt-4 border-t border-sage-200 dark:border-gray-700">
           <SelectGroup icon={<Stethoscope size={18} />} label="Health Conditions (Optional)" name="condition" value={formData.condition} onChange={handleChange}
               options={[
@@ -148,7 +143,7 @@ const HealthForm = ({ onSubmit, isLoading }: HealthFormProps) => {
             />
         </div>
 
-        {/* --- NEW: MEDICAL DISCLAIMER --- */}
+        {/* --- MEDICAL DISCLAIMER --- */}
         <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl flex items-start gap-3 border border-amber-200 dark:border-amber-800/50">
           <AlertTriangle className="text-amber-500 shrink-0 mt-0.5" size={18} />
           <p className="text-xs text-amber-800 dark:text-amber-200/80 leading-relaxed font-medium">

@@ -2,30 +2,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, ChevronRight, FileText, Loader2, Utensils, Dumbbell, Target } from "lucide-react";
+import { Calendar, ChevronRight, FileText, Loader2, Utensils, Dumbbell } from "lucide-react";
 import { getPlanHistory } from "../services/api";
+import { useUser } from "@clerk/clerk-react"; // Integrated Clerk context
 
 const PlanHistory = () => {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const { user } = useUser(); // Real-time safe session access
 
   useEffect(() => {
     const fetchHistory = async () => {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-      if (userInfo._id) {
+      if (user?.id) {
         try {
-          const data = await getPlanHistory(userInfo._id);
+          const data = await getPlanHistory(user.id);
           setPlans(data);
         } catch (error) {
           console.error("Failed to fetch history:", error);
         } finally {
           setLoading(false);
         }
+      } else {
+        setLoading(false);
       }
     };
     fetchHistory();
-  }, []);
+  }, [user]);
 
   // --- SAFE PARSING UTILITY ---
   const parsePlan = (aiString: string) => {
@@ -77,7 +80,7 @@ const PlanHistory = () => {
                     {new Date(plan.date || plan.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                   </p>
                   <p className={`text-[10px] font-bold uppercase tracking-widest ${selectedPlan?._id === plan._id ? "text-sage-300" : "text-sage-500"}`}>
-                    Goal: {plan.formData.goal}
+                    Goal: {plan.formData?.goal || "N/A"}
                   </p>
                 </div>
               </div>
@@ -111,7 +114,7 @@ const PlanHistory = () => {
                               <h5 className="text-xs font-black uppercase text-gray-400 flex items-center gap-2"><Utensils size={14}/> Nutrition</h5>
                               <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-sage-100 dark:border-gray-700">
                                 <p className="text-[10px] font-bold text-sage-400 uppercase">Lunch Highlight</p>
-                                <p className="font-black text-gray-900 dark:text-white">{data.meals?.lunch?.item}</p>
+                                <p className="font-black text-gray-900 dark:text-white">{data.meals?.lunch?.item || "Custom Balance"}</p>
                               </div>
                             </div>
 
@@ -120,7 +123,7 @@ const PlanHistory = () => {
                               <h5 className="text-xs font-black uppercase text-gray-400 flex items-center gap-2"><Dumbbell size={14}/> Fitness</h5>
                               <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-900/30">
                                 <p className="text-[10px] font-bold text-rose-400 uppercase">Focus</p>
-                                <p className="font-black text-gray-900 dark:text-white">{data.workout?.type}</p>
+                                <p className="font-black text-gray-900 dark:text-white">{data.workout?.type || "Custom Sync Training"}</p>
                               </div>
                             </div>
                           </div>

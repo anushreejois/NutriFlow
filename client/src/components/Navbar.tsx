@@ -7,7 +7,15 @@ import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/c
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    // Persist dark mode preference
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("nutriflow_dark");
+      if (saved !== null) return saved === "true";
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    return false;
+  });
   const [hidden, setHidden] = useState(false);
   
   const location = useLocation();
@@ -24,7 +32,7 @@ const Navbar = () => {
     }
   });
 
-  // Dark Mode Toggle Logic
+  // Dark Mode Toggle Logic — now persists to localStorage
   useEffect(() => {
     const html = document.documentElement;
     if (isDark) {
@@ -32,7 +40,13 @@ const Navbar = () => {
     } else {
       html.classList.remove('dark');
     }
+    localStorage.setItem("nutriflow_dark", String(isDark));
   }, [isDark]);
+
+  // Close mobile drawer on navigation
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   const linkStyle = (path: string) => {
     const active = location.pathname === path;
@@ -101,7 +115,6 @@ const Navbar = () => {
                 {location.pathname === "/trackers" && <motion.div layoutId="nav-underline" className="absolute bottom-0 left-0 w-full h-0.5 bg-sage-600 rounded-full" />}
               </div>
 
-              {/* ROUTINE ADDED AFTER TRACKERS */}
               <div className="relative">
                 <Link to="/routine" className={linkStyle("/routine")}>Routine</Link>
                 {location.pathname === "/routine" && <motion.div layoutId="nav-underline" className="absolute bottom-0 left-0 w-full h-0.5 bg-sage-600 rounded-full" />}
@@ -119,6 +132,7 @@ const Navbar = () => {
             <button 
               onClick={() => setIsDark(!isDark)} 
               className="p-3 rounded-xl bg-sage-50 dark:bg-gray-800 text-gray-800 dark:text-yellow-300 hover:scale-110 transition-all shadow-inner"
+              aria-label="Toggle dark mode"
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
@@ -152,8 +166,16 @@ const Navbar = () => {
             <span className="text-xl font-black text-sage-900 dark:text-white">NutriFlow</span>
           </Link>
           <div className="flex items-center gap-4">
+            {/* Dark mode toggle for mobile */}
+            <button 
+              onClick={() => setIsDark(!isDark)} 
+              className="p-2.5 rounded-xl bg-sage-50 dark:bg-gray-800 text-gray-800 dark:text-yellow-300 transition-all"
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <SignedIn><UserButton afterSignOutUrl="/" /></SignedIn>
-            <button onClick={() => setIsOpen(!isOpen)} className="text-sage-900 dark:text-white"><Menu size={30} /></button>
+            <button onClick={() => setIsOpen(!isOpen)} className="text-sage-900 dark:text-white" aria-label="Open menu"><Menu size={30} /></button>
           </div>
         </div>
       </div>
@@ -165,16 +187,17 @@ const Navbar = () => {
             initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
             className="fixed inset-y-0 right-0 w-full bg-white dark:bg-gray-900 z-[110] p-10 flex flex-col items-center gap-8 shadow-2xl"
           >
-            <button onClick={() => setIsOpen(false)} className="absolute top-8 right-8 text-sage-900 dark:text-white"><X size={35} /></button>
+            <button onClick={() => setIsOpen(false)} className="absolute top-8 right-8 text-sage-900 dark:text-white" aria-label="Close menu"><X size={35} /></button>
             <div className="mt-20 flex flex-col items-center gap-8 text-center">
-              <Link to="/" onClick={() => setIsOpen(false)} className="text-3xl font-bold">Home</Link>
-              <Link to="/library" onClick={() => setIsOpen(false)} className="text-3xl font-bold">Library</Link>
+              <Link to="/" className="text-3xl font-bold text-sage-900 dark:text-white">Home</Link>
+              <Link to="/about" className="text-3xl font-bold text-sage-900 dark:text-white">About</Link>
+              <Link to="/library" className="text-3xl font-bold text-sage-900 dark:text-white">Library</Link>
               <SignedIn>
-                <Link to="/dashboard" onClick={() => setIsOpen(false)} className="text-3xl font-bold">Dashboard</Link>
-                <Link to="/vault" onClick={() => setIsOpen(false)} className="text-3xl font-bold">Bio-Vault</Link>
-                <Link to="/trackers" onClick={() => setIsOpen(false)} className="text-3xl font-bold">Trackers</Link>
-                <Link to="/routine" onClick={() => setIsOpen(false)} className="text-3xl font-bold">Routine</Link>
-                <Link to="/profile" onClick={() => setIsOpen(false)} className="text-3xl font-bold">Profile</Link>
+                <Link to="/dashboard" className="text-3xl font-bold text-sage-900 dark:text-white">Dashboard</Link>
+                <Link to="/vault" className="text-3xl font-bold text-sage-900 dark:text-white">Bio-Vault</Link>
+                <Link to="/trackers" className="text-3xl font-bold text-sage-900 dark:text-white">Trackers</Link>
+                <Link to="/routine" className="text-3xl font-bold text-sage-900 dark:text-white">Routine</Link>
+                <Link to="/profile" className="text-3xl font-bold text-sage-900 dark:text-white">Profile</Link>
               </SignedIn>
               <SignedOut>
                 <SignInButton mode="modal">

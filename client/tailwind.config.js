@@ -7,6 +7,9 @@ export default {
   darkMode: 'class', // <--- THIS LINE IS MISSING OR WRONG. IT MUST BE HERE.
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
         sage: {
           50: '#f4f7f5',

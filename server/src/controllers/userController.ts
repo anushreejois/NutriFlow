@@ -141,10 +141,17 @@ export const syncClerkUser = async (req: Request, res: Response) => {
       if (user) {
         // Link their old account to their new Clerk account
         user.clerkId = clerkId;
+        user.name = name || user.name;
         await user.save();
       } else {
         // 3. Completely new user! Create a fresh profile.
         user = await User.create({ clerkId, email, name });
+      }
+    } else {
+      // 4. Existing user — keep name in sync with Clerk profile
+      if (name && user.name !== name) {
+        user.name = name;
+        await user.save();
       }
     }
 

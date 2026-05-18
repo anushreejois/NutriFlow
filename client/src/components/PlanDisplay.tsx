@@ -120,9 +120,11 @@ const PlanDisplay = ({ plan }: { plan: any }) => {
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
                 Duration: <span className="font-bold text-sage-600 dark:text-sage-400">{data.workout?.duration || "30 mins"}</span>
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-500 italic border-l-4 border-sage-300 pl-3">
-                "Focus on form and consistency. Listen to your body's energy levels."
-              </p>
+              {data.workout?.focus && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 bg-sage-50 dark:bg-gray-700/50 p-4 rounded-xl leading-relaxed font-medium">
+                  <span className="font-bold text-sage-700 dark:text-sage-300">Focus: </span>{data.workout.focus}
+                </p>
+              )}
             </div>
           </div>
         </div>

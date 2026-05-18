@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // --- AUTHENTICATION API ---
 
@@ -27,13 +27,13 @@ export const logoutUser = () => {
 
 // --- AI PLAN API (SYNCED WITH BIO-VAULT) ---
 
-export const generatePlan = async (userData: any) => {
+export const generatePlan = async (userData: any, explicitUserId?: string) => {
   try {
+    // Fallback gracefully to legacy localstorage if Clerk ID isn't directly passed down
     const userInfo = localStorage.getItem('userInfo');
-    const userId = userInfo ? JSON.parse(userInfo)._id : null;
+    const dbUserId = explicitUserId || (userInfo ? JSON.parse(userInfo)._id : null);
 
-    const payload = { ...userData, userId }; 
-    // Updated path to /plans/generate-plan to match server index.ts
+    const payload = { ...userData, userId: dbUserId }; 
     const response = await axios.post(`${API_URL}/plans/generate-plan`, payload);
     return response.data;
   } catch (error) {
@@ -42,16 +42,15 @@ export const generatePlan = async (userData: any) => {
   }
 };
 
-export const adjustPlan = async (currentPlan: any, adjustmentRequest: string) => {
+export const adjustPlan = async (currentPlan: any, adjustmentRequest: string, explicitUserId?: string) => {
   try {
     const userInfo = localStorage.getItem('userInfo');
-    const userId = userInfo ? JSON.parse(userInfo)._id : null;
+    const dbUserId = explicitUserId || (userInfo ? JSON.parse(userInfo)._id : null);
 
-    // Updated path to /plans/adjust-plan
     const response = await axios.post(`${API_URL}/plans/adjust-plan`, {
       currentPlan,
       adjustmentRequest,
-      userId 
+      userId: dbUserId 
     });
     return response.data;
   } catch (error) {
@@ -62,7 +61,6 @@ export const adjustPlan = async (currentPlan: any, adjustmentRequest: string) =>
 
 export const getPlanHistory = async (userId: string) => {
   try {
-    // Updated path: server now uses router.get('/:userId') under the /plans prefix
     const response = await axios.get(`${API_URL}/plans/${userId}`);
     return response.data;
   } catch (error) {

@@ -14,6 +14,16 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
+// 1b. DELETE A PLAN BY ID
+router.delete('/:planId', async (req, res) => {
+  try {
+    await Plan.findByIdAndDelete(req.params.planId);
+    res.json({ message: "Plan deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete plan" });
+  }
+});
+
 // 2. SAVE A PLAN TO THE VAULT
 router.post('/save', async (req, res) => {
   try {

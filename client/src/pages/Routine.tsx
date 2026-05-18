@@ -4,8 +4,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Dumbbell, Utensils, Trophy, CheckCircle2, CalendarDays, X, Sparkles, TrendingUp, Activity, BarChart3, Snowflake, Lock } from "lucide-react";
-import { updateGymSplit, saveDailyLog, getDailyLog, getWeeklySummary } from "../services/api"; 
-import OneSignal from 'react-onesignal';
+import { updateGymSplit, saveDailyLog, getDailyLog, getWeeklySummary } from "../services/api";
 
 const MOTIVATION_QUOTES = [
   "Discipline is choosing between what you want now and what you want most.",
@@ -56,17 +55,7 @@ const Routine = () => {
   const today = new Date();
   const isSunday = today.getDay() === 0; 
 
-  // --- CLEAN UP: ONESIGNAL INIT GUARD ---
-  useEffect(() => {
-    if (!(window as any).OneSignalInitialized) {
-      OneSignal.init({ 
-        appId: "47f8363e-5d71-4623-a0c4-e16f843f6c91", 
-        allowLocalhostAsSecureOrigin: true 
-      }).then(() => {
-        (window as any).OneSignalInitialized = true;
-      });
-    }
-  }, []);
+
 
   const getWeekDates = () => {
     const dates = [];

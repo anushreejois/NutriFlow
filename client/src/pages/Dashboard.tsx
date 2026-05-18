@@ -5,9 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import HealthForm from "../components/HealthForm";
 import PlanDisplay from "../components/PlanDisplay";
 import PlanHistory from "../components/PlanHistory"; 
-import { Utensils, History as HistoryIcon, CheckCircle2, Sparkles } from "lucide-react";
+import { Utensils, History as HistoryIcon, Sparkles } from "lucide-react";
 import { generatePlan, adjustPlan } from "../services/api";
-import axios from "axios"; // Ensure axios is imported
+import axios from "axios";
+import { useToast } from "../components/ToastContext";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<"daily" | "history">("daily");
@@ -15,8 +18,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [adjustment, setAdjustment] = useState("");
   const [isAdjusting, setIsAdjusting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false); 
-  const [lastUsedData, setLastUsedData] = useState<any>(null); // To store form data for the vault
+  const [lastUsedData, setLastUsedData] = useState<any>(null);
+  const { showToast } = useToast();
   
   const user = JSON.parse(localStorage.getItem("userInfo") || "{}");
 
@@ -24,7 +27,7 @@ const Dashboard = () => {
   const saveToVault = async (aiResponse: any, formData: any) => {
     try {
       // Endpoint changed from /api/ai/save to /api/plans/save to match your server index.ts
-      await axios.post("http://localhost:5000/api/plans/save", {
+      await axios.post(`${API_URL}/plans/save`, {
         userId: user._id,
         formData: formData,
         // Ensure aiResponse is a string to match your IPlan model
@@ -45,8 +48,9 @@ const Dashboard = () => {
       
       // AUTO-SAVE: Send the new plan to the database
       await saveToVault(result, data);
+      showToast("Bio-Protocol generated & saved!");
     } catch (error) {
-      alert("Error generating plan. Please try again.");
+      showToast("Error generating plan. Please try again.", "error");
     }
     setLoading(false);
   };
@@ -62,10 +66,9 @@ const Dashboard = () => {
       await saveToVault(updatedPlan, lastUsedData);
 
       setAdjustment("");
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000); 
+      showToast("Bio-Vault Updated!");
     } catch (error) {
-      alert("Failed to adjust plan. Please try again.");
+      showToast("Failed to adjust plan. Please try again.", "error");
     } finally {
       setIsAdjusting(false);
     }
@@ -74,21 +77,6 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-sage-50 dark:bg-gray-900 pt-32 pb-20 px-4 transition-colors duration-300 relative">
       
-      {/* SUCCESS TOAST */}
-      <AnimatePresence>
-        {showSuccess && (
-          <motion.div 
-            initial={{ opacity: 0, y: -50 }} 
-            animate={{ opacity: 1, y: 20 }} 
-            exit={{ opacity: 0, y: -50 }} 
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] bg-emerald-600 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-emerald-400"
-          >
-            <CheckCircle2 size={20} />
-            <span className="font-bold">Bio-Vault Updated!</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <div className="max-w-6xl mx-auto space-y-8"> 
         
         {/* HEADER */}

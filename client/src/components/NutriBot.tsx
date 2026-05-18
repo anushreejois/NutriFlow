@@ -5,16 +5,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, X, Send, Sparkles, Loader2, Bot, User, RefreshCcw } from "lucide-react";
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const NutriBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  
+
   // 1. Initial State includes history for context-aware conversations
   const [messages, setMessages] = useState<any[]>([
     { role: "bot", content: "Hi! I'm NutriBot. I've synced with your bio-profile. Ask me anything about your biological rhythm, nutrition, or follow up on your plan!" }
   ]);
-  
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const user = JSON.parse(localStorage.getItem("userInfo") || "{}");
 
@@ -45,7 +47,7 @@ const NutriBot = () => {
     if (!input.trim() || isTyping) return;
 
     const newUserMessage = { role: "user", content: input };
-    
+
     // Maintain a local history to send to the backend
     const updatedHistory = [...messages, newUserMessage];
     setMessages(updatedHistory);
@@ -54,12 +56,12 @@ const NutriBot = () => {
 
     try {
       // 2. CALLING THE NEW BACKEND ROUTE (/api/bot/chat)
-      const response = await axios.post("http://localhost:5000/api/bot/chat", {
+      const response = await axios.post(`${API_URL}/bot/chat`, {
         message: input,
         history: updatedHistory, // Sending the context for follow-up questions
         userData: {
-          name: user.name || "Sanjith",
-          gender: user.gender || "female",
+          name: user.name || "User",
+          gender: user.gender || "male",
           goal: user.goal || "maintain",
           dietary: user.dietary || "standard",
           currentPhaseName: getCurrentPhase()
@@ -81,10 +83,10 @@ const NutriBot = () => {
   return (
     <div className="fixed bottom-8 right-8 z-[200]">
       {/* TRIGGER BUTTON */}
-      <motion.button 
+      <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.9 }}
-        onClick={() => setIsOpen(!isOpen)} 
+        onClick={() => setIsOpen(!isOpen)}
         className="w-16 h-16 bg-sage-900 dark:bg-sage-200 text-white dark:text-sage-900 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-center relative overflow-hidden"
       >
         <AnimatePresence mode="wait">
@@ -103,7 +105,7 @@ const NutriBot = () => {
       {/* CHAT WINDOW */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 40, filter: "blur(10px)" }}
             animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 0.8, y: 40, filter: "blur(10px)" }}
@@ -118,7 +120,7 @@ const NutriBot = () => {
                 </div>
                 <div>
                   <h3 className="font-black text-lg flex items-center gap-2">
-                    NutriBot 
+                    NutriBot
                     <span className="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Grok 2.0</span>
                   </h3>
                   <p className="text-[10px] text-sage-300 font-bold uppercase tracking-widest">Bio-Intelligence</p>
@@ -132,23 +134,22 @@ const NutriBot = () => {
             {/* MESSAGE AREA */}
             <div ref={scrollRef} className="flex-1 p-6 overflow-y-auto space-y-6 custom-scrollbar scroll-smooth">
               {messages.map((msg, i) => (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  key={i} 
+                  key={i}
                   className={`flex items-end gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {msg.role === 'bot' && (
                     <div className="w-8 h-8 rounded-full bg-sage-100 flex items-center justify-center mb-1 shrink-0">
-                      <Bot size={16} className="text-sage-600"/>
+                      <Bot size={16} className="text-sage-600" />
                     </div>
                   )}
-                  
-                  <div className={`max-w-[80%] p-4 rounded-3xl text-sm font-medium leading-relaxed shadow-sm ${
-                    msg.role === 'user' 
-                      ? 'bg-sage-900 text-white rounded-br-none shadow-sage-900/20' 
+
+                  <div className={`max-w-[80%] p-4 rounded-3xl text-sm font-medium leading-relaxed shadow-sm ${msg.role === 'user'
+                      ? 'bg-sage-900 text-white rounded-br-none shadow-sage-900/20'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-200 dark:border-gray-700'
-                  }`}>
+                    }`}>
                     {msg.content}
                   </div>
 
@@ -159,17 +160,17 @@ const NutriBot = () => {
                   )}
                 </motion.div>
               ))}
-              
+
               {isTyping && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-full bg-sage-100 flex items-center justify-center shrink-0">
-                    <Bot size={16} className="text-sage-600"/>
-                   </div>
-                   <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-3xl rounded-tl-none border border-gray-200 dark:border-gray-700 flex gap-1">
-                      <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1.5 h-1.5 bg-sage-400 rounded-full" />
-                      <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 bg-sage-400 rounded-full" />
-                      <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 bg-sage-400 rounded-full" />
-                   </div>
+                  <div className="w-8 h-8 rounded-full bg-sage-100 flex items-center justify-center shrink-0">
+                    <Bot size={16} className="text-sage-600" />
+                  </div>
+                  <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-3xl rounded-tl-none border border-gray-200 dark:border-gray-700 flex gap-1">
+                    <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1.5 h-1.5 bg-sage-400 rounded-full" />
+                    <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 bg-sage-400 rounded-full" />
+                    <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 bg-sage-400 rounded-full" />
+                  </div>
                 </motion.div>
               )}
             </div>
@@ -177,19 +178,19 @@ const NutriBot = () => {
             {/* INPUT FIELD */}
             <div className="p-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
               <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800 p-2 pl-5 rounded-[2rem] border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-sage-500 transition-all">
-                <input 
-                  type="text" 
-                  value={input} 
-                  onChange={(e) => setInput(e.target.value)} 
-                  onKeyDown={(e) => e.key === 'Enter' && handleSend()} 
-                  placeholder="Ask a follow-up question..." 
-                  className="flex-1 bg-transparent border-none outline-none text-sm font-medium py-2 dark:text-white placeholder:text-gray-400" 
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                  placeholder="Ask a follow-up question..."
+                  className="flex-1 bg-transparent border-none outline-none text-sm font-medium py-2 dark:text-white placeholder:text-gray-400"
                 />
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={handleSend} 
-                  disabled={isTyping || !input.trim()} 
+                  onClick={handleSend}
+                  disabled={isTyping || !input.trim()}
                   className="p-3 bg-sage-900 dark:bg-sage-200 text-white dark:text-sage-900 rounded-full disabled:opacity-30 disabled:scale-100 transition-all shadow-lg"
                 >
                   <Send size={18} />
