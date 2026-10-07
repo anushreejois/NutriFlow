@@ -5,9 +5,9 @@ import express, { Request, Response } from "express";
 dotenv.config();
 const router = express.Router();
 
-// Initialize Groq with your BOT KEY
+// Initialize Groq with your Groq key for the bot chat
 const groq = new Groq({
-  apiKey: process.env.GROK_BOT_KEY, 
+  apiKey: process.env.GROK_BOT_KEY,
 });
 
 router.post("/chat", async (req: Request, res: Response) => {
@@ -32,7 +32,7 @@ router.post("/chat", async (req: Request, res: Response) => {
   }));
 
   // 3. Model Rotation (Same as your generatePlan logic)
-  const models = ["llama-3.3-70b-versatile", "llama3-70b-8192"];
+  const models = ["qwen/qwen3.8-27b", "allam-2-7b"];
 
   for (const model of models) {
     try {

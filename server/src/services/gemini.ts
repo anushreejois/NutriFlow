@@ -43,7 +43,7 @@ export const generatePlan = async (userData: any) => {
     `;
   }
 
-  const models = ["llama-3.3-70b-versatile", "llama3-70b-8192"];
+  const models = ["qwen/qwen3.8-27b", "allam-2-7b"];
 
   for (const model of models) {
     try {
