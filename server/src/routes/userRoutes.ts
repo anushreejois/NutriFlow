@@ -16,7 +16,6 @@ router.put('/cycle-data', updateCycleData);
 // --- PROFILE ROUTES ---
 router.get('/profile/:id', getUserProfile);
 router.put('/profile', updateUserProfile);
-router.put('/profile', updateUserProfile);
 
 // --- CLERK SYNC ROUTE ---
 router.post('/sync', syncClerkUser);

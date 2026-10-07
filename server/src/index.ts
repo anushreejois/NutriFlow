@@ -5,12 +5,7 @@ dotenv.config();
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import connectToDatabase from './config/db'; 
-import aiRoutes from './routes/aiRoutes';
-import userRoutes from './routes/userRoutes';
-import habitRoutes from './routes/habitRoutes';
-import blogRoutes from './routes/blogRoutes';
-import routineRoutes from './routes/routineRoutes';
-import nutriBotRoutes from './routes/ai';
+import apiRoutes from './routes/apiRoutes';
 
 // --- BIOLOGICAL ENGINE PRE-FLIGHT CHECK ---
 console.log("\n--- 🌿 NUTRIFLOW AI SYSTEM CHECK ---");
@@ -29,19 +24,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// --- API ROUTES ---
-// We use /api/plans to match BioVault.tsx and Dashboard.tsx
-app.use('/api/plans', aiRoutes); 
-
-// NutriBot Chat
-app.use('/api/bot', nutriBotRoutes);
-
-// Core Features
-app.use('/api/user', userRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/habits', habitRoutes);
-app.use('/api/blogs', blogRoutes);
-app.use('/api/routine', routineRoutes);
+app.use('/api', apiRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('NutriFlow AI API is running smoothly...');

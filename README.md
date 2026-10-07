@@ -74,6 +74,25 @@ Docker Compose runs the production-built React client and Express API. The clien
 serves the app on port `8080` and proxies `/api` requests to the API container.
 MongoDB remains external and uses the URI in `server/.env`.
 
+### API route conventions
+
+New client requests use the versioned `/api/nutriflow/v1/` prefix, followed by a
+lowercase kebab-case feature path. For example:
+
+| Feature | Route |
+| --- | --- |
+| Plans | `/api/nutriflow/v1/plans/generate-plan` |
+| NutriBot | `/api/nutriflow/v1/nutri-bot/chat` |
+| Users | `/api/nutriflow/v1/users/profile/{id}` |
+| Habits | `/api/nutriflow/v1/habits/weekly/{userId}` |
+| Blogs | `/api/nutriflow/v1/blogs` |
+| Routines | `/api/nutriflow/v1/routines/summary/{userId}/{startDate}/{endDate}` |
+
+The previous `/api/plans`, `/api/bot`, `/api/user`, `/api/users`, `/api/habits`,
+`/api/blogs`, and `/api/routine` prefixes remain available as compatibility
+aliases. The client has moved to the versioned routes; remove the aliases only
+after external consumers have migrated.
+
 1. Create `client/.env` from `client/.env.example` and set the Clerk publishable
    key and OneSignal app ID. These `VITE_*` settings are embedded in the browser
    bundle and must not contain server secrets.

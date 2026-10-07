@@ -9,8 +9,7 @@ import { Utensils, History as HistoryIcon, Sparkles } from "lucide-react";
 import { generatePlan, adjustPlan } from "../services/api";
 import axios from "axios";
 import { useToast } from "../components/ToastContext";
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from "../services/apiConfig";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<"daily" | "history">("daily");
@@ -26,8 +25,7 @@ const Dashboard = () => {
   // --- BIO-VAULT SAVE LOGIC (FIXED ENDPOINT) ---
   const saveToVault = async (aiResponse: any, formData: any) => {
     try {
-      // Endpoint changed from /api/ai/save to /api/plans/save to match your server index.ts
-      await axios.post(`${API_URL}/plans/save`, {
+      await axios.post(`${API_BASE_URL}/plans/save`, {
         userId: user._id,
         formData: formData,
         // Ensure aiResponse is a string to match your IPlan model
