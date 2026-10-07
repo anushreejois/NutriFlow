@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
+import { GROQ_CHAT_MODELS, withModelFallback } from "./modelFallback";
 
 dotenv.config();
 
@@ -43,12 +44,11 @@ export const generatePlan = async (userData: any) => {
     `;
   }
 
-  const models = ["qwen/qwen3.8-27b", "allam-2-7b"];
-
-  for (const model of models) {
-    try {
+  return withModelFallback(
+    GROQ_CHAT_MODELS,
+    async (model) => {
       const completion = await groq.chat.completions.create({
-        model: model,
+        model,
         messages: [
           {
             role: "system",
@@ -64,14 +64,14 @@ export const generatePlan = async (userData: any) => {
       });
 
       const responseText = completion.choices[0]?.message?.content;
-      if (!responseText) continue;
+      if (!responseText) return undefined;
 
       console.log(`✅ AI Response generated using: ${model}`);
       return responseText;
-
-    } catch (error: any) {
-      console.warn(`⚠️ Model ${model} failed: ${error.message}`);
-      if (model === models[models.length - 1]) throw error;
-    }
-  }
+    },
+    (model, error) => {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(`⚠️ Model ${model} failed: ${message}`);
+    },
+  );
 };
