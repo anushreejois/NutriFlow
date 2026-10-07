@@ -20,8 +20,6 @@ if (process.env.GROK_BOT_KEY) console.log("🤖 BOT ENGINE (GROK):  ✅ READY");
 if (process.env.MONGO_URI)    console.log("📁 DATABASE CONFIG:    ✅ FOUND");
 console.log("------------------------------------\n");
 
-connectToDatabase(); 
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -49,6 +47,14 @@ app.get('/', (req: Request, res: Response) => {
   res.send('NutriFlow AI API is running smoothly...');
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ NutriFlow Server live at: http://localhost:${PORT}`);
+const startServer = async () => {
+  await connectToDatabase();
+  app.listen(PORT, () => {
+    console.log(`✅ NutriFlow Server live at: http://localhost:${PORT}`);
+  });
+};
+
+void startServer().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });

@@ -2,7 +2,7 @@
 
 **AI-powered nutrition and wellness platform that syncs with your biological rhythm.**
 
-NutriFlow uses Llama-3 AI to generate personalized meal plans, workout protocols, and wellness recommendations adapted to your hormonal cycle phases, body metrics, and lifestyle goals.
+NutriFlow uses AI to suggest personalized meal plans, workout protocols, and wellness recommendations based on your profile, preferences, and (when relevant) cycle phase.
 
 ## Features
 
@@ -21,7 +21,7 @@ NutriFlow uses Llama-3 AI to generate personalized meal plans, workout protocols
 |-------|-----------|
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS, Framer Motion |
 | Backend | Node.js, Express, MongoDB (Mongoose) |
-| AI Engine | Groq SDK (Llama-3.3-70b) |
+| AI Engine | Groq-hosted Qwen model with ALLaM fallback |
 | Auth | Clerk (SSO, Social Login) |
 | Notifications | OneSignal |
 
