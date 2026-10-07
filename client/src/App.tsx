@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { SignedIn, SignedOut, RedirectToSignIn, useUser } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from "@clerk/clerk-react";
 import { AnimatePresence } from "framer-motion";
 import { syncClerkToDB } from "./services/api";
 import OneSignal from 'react-onesignal';
+import axios from "axios";
+import { API_BASE_URL } from "./services/apiConfig";
 
 // --- COMPONENTS ---
 import Navbar from "./components/Navbar";
@@ -29,9 +31,25 @@ declare global {
 }
 
 // --- REUSABLE PROTECTED WRAPPER ---
-const Protected = ({ children }: { children: React.ReactNode }) => (
+const Protected = ({
+  children,
+  profileStatus,
+}: {
+  children: React.ReactNode;
+  profileStatus: "syncing" | "ready" | "error" | "signed-out";
+}) => (
   <>
-    <SignedIn>{children}</SignedIn>
+    <SignedIn>
+      {profileStatus === "ready" ? children : (
+        <div className="min-h-screen flex items-center justify-center px-6 text-center">
+          <p className="max-w-md text-sage-700 dark:text-sage-300">
+            {profileStatus === "error"
+              ? "We couldn't load your account profile. Please refresh and try again."
+              : "Securing your account…"}
+          </p>
+        </div>
+      )}
+    </SignedIn>
     <SignedOut><RedirectToSignIn /></SignedOut>
   </>
 );
@@ -55,33 +73,63 @@ const NotFound = () => (
 
 function App() {
   const { user, isLoaded, isSignedIn } = useUser();
+  const { getToken } = useAuth();
+  const [profileStatus, setProfileStatus] = useState<
+    "syncing" | "ready" | "error" | "signed-out"
+  >("syncing");
   const [showIntro, setShowIntro] = useState(() => {
     // Skip intro for returning users
     if (localStorage.getItem("nutriflow_visited")) return false;
     return true;
   });
 
+  useEffect(() => {
+    const interceptorId = axios.interceptors.request.use(async (config) => {
+      if (config.url?.startsWith(API_BASE_URL)) {
+        const token = await getToken();
+        if (token) {
+          config.headers.set("Authorization", `Bearer ${token}`);
+        }
+      }
+
+      return config;
+    });
+
+    return () => {
+      axios.interceptors.request.eject(interceptorId);
+    };
+  }, [getToken]);
+
   // --- THE SYNC BRIDGE (Clerk to MongoDB) ---
   useEffect(() => {
+    let cancelled = false;
     const syncUser = async () => {
       if (isSignedIn && user) {
+        setProfileStatus("syncing");
         try {
           const dbUser = await syncClerkToDB({
             clerkId: user.id,
             email: user.primaryEmailAddress?.emailAddress || "",
             name: user.fullName || "NutriFlow User",
           });
-          
+          if (cancelled) return;
           localStorage.setItem("userInfo", JSON.stringify(dbUser));
+          setProfileStatus("ready");
         } catch (error) {
+          if (cancelled) return;
           console.error("Failed to sync user to database:", error);
+          setProfileStatus("error");
         }
       } else if (isLoaded && !isSignedIn) {
         localStorage.removeItem("userInfo");
+        setProfileStatus("signed-out");
       }
     };
 
     syncUser();
+    return () => {
+      cancelled = true;
+    };
   }, [isSignedIn, user, isLoaded]);
 
   // --- ONESIGNAL INIT ---
@@ -122,11 +170,11 @@ function App() {
           <Route path="/library" element={<HealthLibrary />} />
 
           {/* --- PROTECTED ROUTES --- */}
-          <Route path="/dashboard" element={<Protected><ErrorBoundary><Dashboard /></ErrorBoundary></Protected>} />
-          <Route path="/vault" element={<Protected><ErrorBoundary><BioVault /></ErrorBoundary></Protected>} />
-          <Route path="/profile" element={<Protected><ErrorBoundary><Profile /></ErrorBoundary></Protected>} />
-          <Route path="/trackers" element={<Protected><ErrorBoundary><Trackers /></ErrorBoundary></Protected>} />
-          <Route path="/routine" element={<Protected><ErrorBoundary><Routine /></ErrorBoundary></Protected>} />
+          <Route path="/dashboard" element={<Protected profileStatus={profileStatus}><ErrorBoundary><Dashboard /></ErrorBoundary></Protected>} />
+          <Route path="/vault" element={<Protected profileStatus={profileStatus}><ErrorBoundary><BioVault /></ErrorBoundary></Protected>} />
+          <Route path="/profile" element={<Protected profileStatus={profileStatus}><ErrorBoundary><Profile /></ErrorBoundary></Protected>} />
+          <Route path="/trackers" element={<Protected profileStatus={profileStatus}><ErrorBoundary><Trackers /></ErrorBoundary></Protected>} />
+          <Route path="/routine" element={<Protected profileStatus={profileStatus}><ErrorBoundary><Routine /></ErrorBoundary></Protected>} />
 
           {/* 404 CATCH-ALL */}
           <Route path="*" element={<NotFound />} />
@@ -136,7 +184,7 @@ function App() {
       </div>
 
       {/* 2. FLOATING AI ASSISTANT */}
-      <NutriBot /> 
+      {profileStatus === "ready" && isSignedIn && <NutriBot />}
     </Router>
   );
 }
