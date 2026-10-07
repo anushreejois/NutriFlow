@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Activity, ShieldAlert, HeartPulse, CheckCircle, BookOpen, PenTool, Heart, X, Loader2 } from "lucide-react";
 import { getBlogs, createBlog, likeBlog } from "../services/api"; 
+import { useAuth } from "@clerk/clerk-react";
 
 // --- DATA: The Medical Info (Untouched) ---
 const healthData = {
@@ -45,6 +46,7 @@ const healthData = {
 };
 
 const HealthLibrary = () => {
+  const { isSignedIn } = useAuth();
   const [mainTab, setMainTab] = useState<"guides" | "blogs">("guides");
   const [activeGenderTab, setActiveGenderTab] = useState<"women" | "men">("women");
   
@@ -108,7 +110,7 @@ const HealthLibrary = () => {
   };
 
   const handleAppreciate = async () => {
-    if (!selectedBlog) return;
+    if (!selectedBlog || !isSignedIn) return;
     try {
       const updatedBlog = await likeBlog(selectedBlog._id);
       setSelectedBlog(updatedBlog);
@@ -173,9 +175,10 @@ const HealthLibrary = () => {
                 <h2 className="text-2xl font-bold text-sage-900 dark:text-white">Latest from the Community</h2>
                 <button 
                   onClick={() => setShowWriteModal(true)}
-                  className="flex items-center gap-2 bg-sage-800 hover:bg-sage-900 dark:bg-sage-200 dark:hover:bg-white text-white dark:text-sage-900 px-6 py-3 rounded-full font-bold transition-all shadow-md hover:shadow-lg"
+                  disabled={!isSignedIn}
+                  className="flex items-center gap-2 bg-sage-800 hover:bg-sage-900 dark:bg-sage-200 dark:hover:bg-white text-white dark:text-sage-900 px-6 py-3 rounded-full font-bold transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <PenTool size={18} /> Write a Blog
+                  <PenTool size={18} /> {isSignedIn ? "Write a Blog" : "Sign in to write"}
                 </button>
               </div>
 
@@ -266,9 +269,11 @@ const HealthLibrary = () => {
                 <div className="mt-8 pt-8 border-t border-sage-100 dark:border-gray-800 flex justify-center">
                    <button 
                      onClick={handleAppreciate}
-                     className="flex items-center gap-2 px-6 py-3 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-transform active:scale-95"
+                     disabled={!isSignedIn}
+                     className="flex items-center gap-2 px-6 py-3 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                    >
-                      <Heart size={20} className="fill-current" /> Appreciate Story ({selectedBlog.likes || 0})
+                      <Heart size={20} className="fill-current" />
+                      {isSignedIn ? "Appreciate Story" : "Sign in to appreciate"} ({selectedBlog.likes || 0})
                    </button>
                 </div>
               </motion.div>

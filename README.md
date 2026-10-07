@@ -96,8 +96,11 @@ after external consumers have migrated.
 1. Create `client/.env` from `client/.env.example` and set the Clerk publishable
    key and OneSignal app ID. These `VITE_*` settings are embedded in the browser
    bundle and must not contain server secrets.
-2. Create `server/.env` from `server/.env.example` and set the MongoDB URI and
-   Groq keys. If MongoDB is running on the same host as Docker, use
+2. Create `server/.env` from `server/.env.example` and set the MongoDB URI,
+   Clerk secret key, and Groq keys. Get the Clerk secret key from the Clerk
+   dashboard; never use the publishable key or commit the secret key. The API
+   verifies Clerk session tokens and scopes private records to the signed-in
+   account. If MongoDB is running on the same host as Docker, use
    `host.docker.internal` instead of `localhost` as the URI hostname. Make sure
    the MongoDB server permits connections from your Docker host.
 3. From the repository root, run:

@@ -1,5 +1,6 @@
 import express from 'express';
 import Habit from '../models/Habit';
+import { getCurrentUserId } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -7,7 +8,7 @@ const router = express.Router();
 router.get('/:userId', async (req, res) => {
   const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
   try {
-    let habit = await Habit.findOne({ userId: req.params.userId, date: today });
+    let habit = await Habit.findOne({ userId: getCurrentUserId(req), date: today });
     
     // If no record for today, return an empty structure (don't create yet)
     if (!habit) {
@@ -21,12 +22,12 @@ router.get('/:userId', async (req, res) => {
 
 // @desc    Update or Create habits for today
 router.post('/update', async (req, res) => {
-  const { userId, waterIntake, customHabits } = req.body;
+  const { waterIntake, customHabits } = req.body;
   const today = new Date().toISOString().split('T')[0];
 
   try {
     const habit = await Habit.findOneAndUpdate(
-      { userId, date: today },
+      { userId: getCurrentUserId(req), date: today },
       { waterIntake, customHabits },
       { upsert: true, new: true } // upsert: true creates it if it doesn't exist
     );
@@ -41,7 +42,7 @@ router.get('/weekly/:userId', async (req, res) => {
 
   try {
     const history = await Habit.find({
-      userId: req.params.userId,
+      userId: getCurrentUserId(req),
       createdAt: { $gte: sevenDaysAgo }
     }).sort({ date: 1 });
 

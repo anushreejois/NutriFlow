@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireClerkAuth, requireCurrentUser, requireOwnUser } from '../middleware/auth';
 import { 
   updateResetProgress, 
   getUserProfile, 
@@ -9,6 +10,11 @@ import {
 
 const router = express.Router();
 
+// Clerk identity is sufficient to create or link the caller's application profile.
+router.post('/sync', requireClerkAuth, syncClerkUser);
+
+router.use(requireClerkAuth, requireCurrentUser, requireOwnUser);
+
 // --- TRACKER ROUTES ---
 router.put('/reset-progress', updateResetProgress);
 router.put('/cycle-data', updateCycleData);
@@ -16,8 +22,5 @@ router.put('/cycle-data', updateCycleData);
 // --- PROFILE ROUTES ---
 router.get('/profile/:id', getUserProfile);
 router.put('/profile', updateUserProfile);
-
-// --- CLERK SYNC ROUTE ---
-router.post('/sync', syncClerkUser);
 
 export default router;
