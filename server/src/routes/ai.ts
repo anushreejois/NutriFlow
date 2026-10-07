@@ -1,6 +1,7 @@
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
+import { GROQ_CHAT_MODELS, withModelFallback } from "../services/modelFallback";
 
 dotenv.config();
 const router = express.Router();
@@ -32,32 +33,40 @@ router.post("/chat", async (req: Request, res: Response) => {
   }));
 
   // 3. Model Rotation (Same as your generatePlan logic)
-  const models = ["qwen/qwen3.8-27b", "allam-2-7b"];
+  try {
+    const botReply = await withModelFallback(
+      GROQ_CHAT_MODELS,
+      async (model) => {
+        const completion = await groq.chat.completions.create({
+          model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...chatMessages, // Includes the previous context + current message
+          ],
+          temperature: 0.7,
+          max_tokens: 300,
+        });
 
-  for (const model of models) {
-    try {
-      const completion = await groq.chat.completions.create({
-        model: model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...chatMessages, // Includes the previous context + current message
-        ],
-        temperature: 0.7,
-        max_tokens: 300,
-      });
+        const botReply = completion.choices[0]?.message?.content;
+        if (!botReply) return undefined;
 
-      const botReply = completion.choices[0]?.message?.content;
-      if (!botReply) continue;
+        console.log(`✅ NutriBot responded using: ${model}`);
+        return botReply;
+      },
+      (model, error) => {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.warn(`⚠️ NutriBot model ${model} failed: ${errorMessage}`);
+      },
+    );
 
-      console.log(`✅ NutriBot responded using: ${model}`);
-      return res.json({ reply: botReply });
-
-    } catch (error: any) {
-      console.warn(`⚠️ NutriBot Model ${model} failed: ${error.message}`);
-      if (model === models[models.length - 1]) {
-        return res.status(500).json({ error: "All biological engines are offline." });
-      }
+    if (!botReply) {
+      return res.status(500).json({ error: "All biological engines are offline." });
     }
+
+    return res.json({ reply: botReply });
+  } catch (error) {
+    console.error("NutriBot request failed:", error);
+    return res.status(500).json({ error: "All biological engines are offline." });
   }
 });
 

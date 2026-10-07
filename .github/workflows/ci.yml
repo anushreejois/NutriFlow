@@ -70,6 +70,10 @@ jobs:
         working-directory: server
         run: npm run build
 
+      - name: Test server
+        working-directory: server
+        run: npm test
+
   docker:
     name: Docker Compose validation and image build
     runs-on: ubuntu-latest
