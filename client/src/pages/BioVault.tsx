@@ -4,10 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Utensils, Dumbbell, X, Trash2, Sparkles, Search, AlertTriangle } from "lucide-react";
 import axios from "axios";
+import { API_BASE_URL } from "../services/apiConfig";
 import { useToast } from "../components/ToastContext";
-
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const BioVault = () => {
   const [plans, setPlans] = useState<any[]>([]);
@@ -20,7 +18,7 @@ const BioVault = () => {
 
   const fetchPlans = async () => {
     try {
-      const res = await axios.get(`${API_URL}/plans/${user._id}`);
+      const res = await axios.get(`${API_BASE_URL}/plans/${user._id}`);
       setPlans(res.data);
     } catch (err) { console.error(err); } finally { setLoading(false); }
   };
@@ -52,7 +50,7 @@ const BioVault = () => {
   // Delete plan
   const handleDelete = async (planId: string) => {
     try {
-      await axios.delete(`${API_URL}/plans/${planId}`);
+      await axios.delete(`${API_BASE_URL}/plans/${planId}`);
       setPlans((prev) => prev.filter((p) => p._id !== planId));
       setConfirmDelete(null);
       setSelectedPlan(null);

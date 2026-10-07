@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, X, Send, Sparkles, Bot, RefreshCcw } from "lucide-react";
 import axios from "axios";
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from "../services/apiConfig";
 
 const NutriBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,8 +54,7 @@ const NutriBot = () => {
     setIsTyping(true);
 
     try {
-      // 2. CALLING THE NEW BACKEND ROUTE (/api/bot/chat)
-      const response = await axios.post(`${API_URL}/bot/chat`, {
+      const response = await axios.post(`${API_BASE_URL}/nutri-bot/chat`, {
         message: input,
         history: updatedHistory, // Sending the context for follow-up questions
         userData: {

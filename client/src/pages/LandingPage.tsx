@@ -67,7 +67,7 @@ const LandingPage = () => {
             transition={{ type: "spring", bounce: 0.4, duration: 1.2, delay: 0.1 }}
             className="text-xl md:text-2xl text-sage-900 dark:text-sage-50 max-w-3xl mx-auto mb-12 md:mb-16 font-medium leading-relaxed"
           >
-            Your body isn't linear, so your health tech shouldn't be either. NutriFlow uses Llama-3 AI to adapt to your hormone phases in real-time.
+            Your body isn't linear, so your health tech shouldn't be either. NutriFlow uses your goals, lifestyle, and cycle phase to create personalized wellness plans.
           </motion.p>
           
           <motion.div 
@@ -128,7 +128,7 @@ const LandingPage = () => {
               step="02"
               icon={<Brain size={28} />}
               title="AI Generates Your Plan"
-              desc="Llama-3 processes your biometrics and creates a personalized meal plan + workout protocol in seconds."
+              desc="Our AI uses your profile and preferences to suggest a personalized meal plan and workout protocol."
               delay={0.2}
             />
             <StepCard
@@ -152,7 +152,7 @@ const LandingPage = () => {
               </h2>
             </div>
             <p className="text-sage-800 dark:text-sage-200 text-lg md:text-xl max-w-md font-medium italic">
-              "We move beyond calorie counting to deliver precision nutrition synced to your metabolic clock."
+              "Go beyond calorie counting with wellness suggestions based on your goals, lifestyle, and cycle phase when relevant."
             </p>
           </div>
 
@@ -160,8 +160,8 @@ const LandingPage = () => {
             <FeatureCard 
               icon={<Heart size={24} />}
               title="Phase-Match AI"
-              subtitle="[Llama-3 Powered]"
-              desc="Our engine rebuilds your protocol based on estrogen and progesterone peaks. Sync meals to your chemistry."
+              subtitle="[AI-Powered]"
+              desc="Use your current cycle phase, goals, and preferences to get meal and workout suggestions tailored to your profile."
               linkText="Explore AI Plans"
               themeColor="text-rose-600 dark:text-rose-400"
               bgHex="#e11d48"
@@ -172,7 +172,7 @@ const LandingPage = () => {
               icon={<ShieldCheck size={24} />}
               title="The Bio-Vault"
               subtitle="[Secure Archive]"
-              desc="A permanent, chronological record of your biological journey and every optimized protocol ever generated."
+              desc="Review and manage your saved plans in one chronological archive."
               linkText="Access Vault"
               themeColor="text-sage-600 dark:text-sage-400"
               bgHex="#4d7c0f"
@@ -182,8 +182,8 @@ const LandingPage = () => {
             <FeatureCard 
               icon={<MessageSquare size={24} />}
               title="NutriBot AI"
-              subtitle="[Real-Time Adjust]"
-              desc="Don't like a meal? NutriBot swaps it instantly while keeping your macros and bio-phase perfect."
+              subtitle="[AI Meal Suggestions]"
+              desc="Ask NutriBot for meal ideas or alternatives that take your stated preferences into account."
               linkText="Chat with AI"
               themeColor="text-blue-600 dark:text-blue-400"
               bgHex="#2563eb"
@@ -194,7 +194,7 @@ const LandingPage = () => {
               icon={<Activity size={24} />}
               title="Adaptive Fitness"
               subtitle="[Dynamic Training]"
-              desc="Workout protocols that scale based on your recovery data, energy levels, and current metabolic phase."
+              desc="Explore workout suggestions informed by your goals and activity level."
               linkText="View Workouts"
               themeColor="text-emerald-600 dark:text-emerald-400"
               bgHex="#10b981"
@@ -229,7 +229,7 @@ const LandingPage = () => {
             />
             <FaqItem 
               question="How does the AI personalize my plan?"
-              answer="Our Llama-3 AI engine takes into account your age, weight, height, activity level, dietary preferences, wellness goals, and (for women) current cycle phase to generate a meal plan and workout protocol tailored specifically to your body."
+              answer="Our AI uses your age, weight, height, activity level, dietary preferences, wellness goals, and (when relevant) cycle phase to suggest a personalized meal plan and workout protocol."
             />
             <FaqItem 
               question="Is my health data private?"

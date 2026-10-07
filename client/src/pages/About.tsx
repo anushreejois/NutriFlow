@@ -127,14 +127,14 @@ const About = () => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl font-bold text-sage-900 dark:text-white">Powered by 2026 Tech</h2>
-          <p className="text-sage-600 dark:text-sage-400 mt-2">Built for speed, accuracy, and absolute privacy.</p>
+          <p className="text-sage-600 dark:text-sage-400 mt-2">Helpful tools for planning and tracking everyday wellness.</p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-8">
           <ValueCard 
             icon={<Cpu size={32} />}
-            title="Groq Llama-3 Engine"
-            desc="Generating bio-individual meal plans in milliseconds using the world's fastest inference engine, ensuring your data is processed instantly."
+            title="Personalized AI Plans"
+            desc="AI-generated wellness suggestions based on the profile information and preferences you provide."
             delay={0.2}
           />
           <ValueCard 

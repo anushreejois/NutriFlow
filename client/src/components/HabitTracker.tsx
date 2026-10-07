@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { CheckCircle2, Droplets, Trophy, Plus, Trash2, Droplet } from "lucide-react";
 import axios from "axios";
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from "../services/apiConfig";
 
 // Added onUpdate prop to refresh the rings instantly
 const HabitTracker = ({ onUpdate }: { onUpdate: (water: number) => void }) => {
@@ -16,7 +15,7 @@ const HabitTracker = ({ onUpdate }: { onUpdate: (water: number) => void }) => {
   useEffect(() => {
     const fetchHabits = async () => {
       try {
-        const res = await axios.get(`${API_URL}/habits/${user._id}`);
+        const res = await axios.get(`${API_BASE_URL}/habits/${user._id}`);
         if (res.data) {
           setWater(res.data.waterIntake || 0);
           setHabits(res.data.customHabits || []);
@@ -28,7 +27,7 @@ const HabitTracker = ({ onUpdate }: { onUpdate: (water: number) => void }) => {
 
   const saveToDB = async (updatedHabits: any, updatedWater: number) => {
     try {
-      await axios.post(`${API_URL}/habits/update`, {
+      await axios.post(`${API_BASE_URL}/habits/update`, {
         userId: user._id,
         waterIntake: updatedWater,
         customHabits: updatedHabits

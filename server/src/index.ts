@@ -5,12 +5,7 @@ dotenv.config();
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import connectToDatabase from './config/db'; 
-import aiRoutes from './routes/aiRoutes';
-import userRoutes from './routes/userRoutes';
-import habitRoutes from './routes/habitRoutes';
-import blogRoutes from './routes/blogRoutes';
-import routineRoutes from './routes/routineRoutes';
-import nutriBotRoutes from './routes/ai';
+import apiRoutes from './routes/apiRoutes';
 
 // --- BIOLOGICAL ENGINE PRE-FLIGHT CHECK ---
 console.log("\n--- 🌿 NUTRIFLOW AI SYSTEM CHECK ---");
@@ -19,8 +14,6 @@ if (process.env.GROQ_API_KEY) console.log("🚀 PLAN ENGINE (GROQ): ✅ READY");
 if (process.env.GROK_BOT_KEY) console.log("🤖 BOT ENGINE (GROK):  ✅ READY");
 if (process.env.MONGO_URI)    console.log("📁 DATABASE CONFIG:    ✅ FOUND");
 console.log("------------------------------------\n");
-
-connectToDatabase(); 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -31,24 +24,20 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// --- API ROUTES ---
-// We use /api/plans to match BioVault.tsx and Dashboard.tsx
-app.use('/api/plans', aiRoutes); 
-
-// NutriBot Chat
-app.use('/api/bot', nutriBotRoutes);
-
-// Core Features
-app.use('/api/user', userRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/habits', habitRoutes);
-app.use('/api/blogs', blogRoutes);
-app.use('/api/routine', routineRoutes);
+app.use('/api', apiRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('NutriFlow AI API is running smoothly...');
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ NutriFlow Server live at: http://localhost:${PORT}`);
+const startServer = async () => {
+  await connectToDatabase();
+  app.listen(PORT, () => {
+    console.log(`✅ NutriFlow Server live at: http://localhost:${PORT}`);
+  });
+};
+
+void startServer().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });

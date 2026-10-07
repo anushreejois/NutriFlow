@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import User from '../models/User';
 
 // @desc    Update 21-Day Reset Progress
-// @route   PUT /api/user/reset-progress
+// @route   PUT /api/nutriflow/v1/users/reset-progress
 export const updateResetProgress = async (req: Request, res: Response) => {
   try {
     const { userId, dayNumber } = req.body; 
@@ -33,7 +33,7 @@ export const updateResetProgress = async (req: Request, res: Response) => {
 };
 
 // @desc    Get User Profile (to load progress on login)
-// @route   GET /api/user/profile/:id
+// @route   GET /api/nutriflow/v1/users/profile/:id
 export const getUserProfile = async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id).select('-password'); 
@@ -48,7 +48,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
 };
 
 // @desc    Update Cycle Data
-// @route   PUT /api/user/cycle-data
+// @route   PUT /api/nutriflow/v1/users/cycle-data
 export const updateCycleData = async (req: Request, res: Response) => {
   try {
     const { userId, date, length } = req.body; 
@@ -74,7 +74,7 @@ export const updateCycleData = async (req: Request, res: Response) => {
 };
 
 // @desc    Update User Profile (Physical Stats)
-// @route   PUT /api/user/profile
+// @route   PUT /api/nutriflow/v1/users/profile
 export const updateUserProfile = async (req: Request, res: Response) => {
   try {
     // --- ADDED GENDER, DIETARY, AND NEW TRACKING FIELDS HERE ---
@@ -126,7 +126,7 @@ export const updateUserProfile = async (req: Request, res: Response) => {
 };
 
 // @desc    Sync Clerk User to MongoDB
-// @route   POST /api/users/sync
+// @route   POST /api/nutriflow/v1/users/sync
 export const syncClerkUser = async (req: Request, res: Response) => {
   try {
     const { clerkId, email, name } = req.body;
