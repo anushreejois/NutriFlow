@@ -19,6 +19,14 @@ NutriFlow is a high-inference AI-powered health platform designed to bridge the 
 * Natural language interaction for real-time adjustments
 * Modify meals, calories, or plans instantly
 * Maintains biological consistency across recommendations
+* Provides general wellness information only; it does not diagnose or treat conditions
+
+AI-generated plans are checked for required fields and reasonable value ranges before
+they are returned or saved. If a model produces an invalid plan, NutriFlow tries the
+configured fallback model. Allergy details can be included in the plan form, but AI
+cannot guarantee allergen safety: always verify ingredients and labels, including
+cross-contact warnings, and consult a qualified healthcare professional for medical
+conditions or treatment decisions.
 
 ---
 
