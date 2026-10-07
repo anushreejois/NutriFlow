@@ -32,7 +32,7 @@ NutriFlow is a high-inference AI-powered health platform designed to bridge the 
 
 ### ⚡ Ultra-Low Latency AI Inference
 
-* Powered by LLM APIs (Groq / Llama-3)
+* Powered by open-weight language models served through Groq
 * Generates complete personalized plans instantly
 * Optimized for fast and seamless UX
 
@@ -43,9 +43,9 @@ NutriFlow is a high-inference AI-powered health platform designed to bridge the 
 ```text
 Frontend (React + Tailwind)
         ↓
-API Layer (Node.js / FastAPI)
+API Layer (Node.js / Express)
         ↓
-AI Engine (Llama-3 via Groq)
+AI Engine (Qwen with ALLaM fallback via Groq)
         ↓
 Database (MongoDB Atlas)
 ```
@@ -58,15 +58,41 @@ Database (MongoDB Atlas)
 | -------------- | ---------------------------------- |
 | Frontend       | React.js, TypeScript, Tailwind CSS |
 | Animations     | Framer Motion                      |
-| Backend        | Node.js / Express / FastAPI        |
+| Backend        | Node.js / Express                  |
 | Database       | MongoDB Atlas                      |
 | Authentication | Clerk Auth                         |
-| AI Engine      | Llama-3 (Groq Cloud)               |
+| AI Engine      | Qwen (primary), ALLaM (fallback), via Groq |
 | Notifications  | OneSignal                          |
 
 ---
 
 ## 📦 Installation & Setup
+
+### Run the full application with Docker
+
+Docker Compose runs the production-built React client and Express API. The client
+serves the app on port `8080` and proxies `/api` requests to the API container.
+MongoDB remains external and uses the URI in `server/.env`.
+
+1. Create `client/.env` from `client/.env.example` and set the Clerk publishable
+   key and OneSignal app ID. These `VITE_*` settings are embedded in the browser
+   bundle and must not contain server secrets.
+2. Create `server/.env` from `server/.env.example` and set the MongoDB URI and
+   Groq keys. If MongoDB is running on the same host as Docker, use
+   `host.docker.internal` instead of `localhost` as the URI hostname. Make sure
+   the MongoDB server permits connections from your Docker host.
+3. From the repository root, run:
+
+   ```bash
+   docker compose --env-file client/.env up --build
+   ```
+
+4. Open [http://localhost:8080](http://localhost:8080). The API is also
+   available at [http://localhost:5000](http://localhost:5000) on the host.
+
+To stop the containers, run `docker compose down`. To rebuild after changing
+frontend build-time settings in `client/.env`, run the `up --build` command
+again.
 
 ### 1️⃣ Clone the Repository
 
@@ -77,45 +103,21 @@ cd NutriFlow
 
 ---
 
-### 2️⃣ Environment Variables
-
-Create a `.env` file:
-
-```env
-VITE_CLERK_PUBLISHABLE_KEY=your_clerk_key
-VITE_GROQ_API_KEY=your_groq_key
-VITE_ONESIGNAL_APP_ID=your_onesignal_id
-DATABASE_URL=your_mongodb_uri
-```
-
----
-
-### 3️⃣ Install Dependencies
+### Install Dependencies
 
 #### Frontend
 
 ```bash
-cd client
-npm install
+cd client && npm ci
 ```
 
 #### Backend (Node.js)
 
 ```bash
-cd server
-npm install
+cd server && npm ci
 ```
 
-#### OR Backend (Python FastAPI)
-
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
----
-
-### 4️⃣ Run Locally
+### Run Locally
 
 ```bash
 npm run dev
