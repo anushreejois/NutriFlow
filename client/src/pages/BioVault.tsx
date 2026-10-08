@@ -181,6 +181,13 @@ const BioVault = () => {
             <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-white dark:bg-gray-900 w-full max-w-4xl max-h-[85vh] overflow-y-auto rounded-[2.5rem] p-8 md:p-10 relative custom-scrollbar shadow-2xl border border-gray-100 dark:border-gray-800">
               <button onClick={() => setSelectedPlan(null)} className="absolute top-6 right-6 p-2 bg-gray-50 dark:bg-gray-800 rounded-full hover:bg-gray-100 transition-colors" aria-label="Close modal"><X size={20}/></button>
               
+              <div
+                role="note"
+                className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-xs leading-relaxed text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-100"
+              >
+                General wellness information only—not medical advice or treatment. Check ingredients and labels for allergens and cross-contact, and consult a qualified healthcare professional about health conditions or major changes.
+              </div>
+
               <div className="mb-8 pb-6 border-b border-gray-50 dark:border-gray-800">
                 <span className="text-[10px] font-black text-sage-500 uppercase tracking-widest">Protocol ID: {selectedPlan._id.slice(-6)}</span>
                 <h2 className="text-2xl font-black text-gray-900 dark:text-white mt-1 leading-tight">{selectedPlan.parsed.summary}</h2>
