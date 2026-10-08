@@ -28,6 +28,7 @@ const HealthForm = ({ onSubmit, isLoading }: HealthFormProps) => {
       goal: userInfo.goal || savedMetrics.goal || "balance",
       dietary: userInfo.dietary || savedMetrics.dietary || "standard",
       condition: savedMetrics.condition || "none", 
+      allergies: savedMetrics.allergies || "",
     };
   });
 
@@ -144,11 +145,22 @@ const HealthForm = ({ onSubmit, isLoading }: HealthFormProps) => {
             />
         </div>
 
+        <InputGroup
+          icon={<AlertTriangle size={18} />}
+          label="Food Allergies or Intolerances (Optional)"
+          name="allergies"
+          type="text"
+          maxLength={300}
+          value={formData.allergies}
+          onChange={handleChange}
+          placeholder="List ingredients to avoid"
+        />
+
         {/* --- MEDICAL DISCLAIMER --- */}
         <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl flex items-start gap-3 border border-amber-200 dark:border-amber-800/50">
           <AlertTriangle className="text-amber-500 shrink-0 mt-0.5" size={18} />
           <p className="text-xs text-amber-800 dark:text-amber-200/80 leading-relaxed font-medium">
-            <strong>Disclaimer:</strong> NutriFlow AI provides basic lifestyle and nutritional recommendations to help support a healthy routine. It is not a substitute for professional medical advice, diagnosis, or treatment. Please consult a doctor or endocrinologist for clinical insights before making drastic changes.
+            <strong>Health and allergy safety:</strong> AI suggestions are general information, not medical advice, diagnosis, or treatment. Do not change medication based on a plan. Check every ingredient and food label for allergens and cross-contact; consult a qualified healthcare professional about medical conditions or dietary changes. To generate a plan, the profile, selected condition, and allergy details entered here are sent to Groq; your name and account ID are not included.
           </p>
         </div>
 

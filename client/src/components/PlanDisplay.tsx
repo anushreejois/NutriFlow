@@ -34,6 +34,13 @@ const PlanDisplay = ({ plan }: { plan: any }) => {
       animate={{ opacity: 1 }}
       className="space-y-8"
     >
+      <div
+        role="note"
+        className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-relaxed text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-100"
+      >
+        AI plans are general wellness information, not medical advice or treatment. Check every ingredient and food label for allergens and cross-contact, and consult a qualified healthcare professional about health conditions or major changes.
+      </div>
+
       {/* 1. HERO SUMMARY CARD */}
       <div className="bg-gradient-to-r from-sage-600 to-earth-500 p-8 rounded-3xl text-white shadow-xl">
         <h2 className="text-3xl font-bold mb-2">Your Personalized Protocol</h2>

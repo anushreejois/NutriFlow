@@ -7,9 +7,7 @@ import PlanDisplay from "../components/PlanDisplay";
 import PlanHistory from "../components/PlanHistory"; 
 import { Utensils, History as HistoryIcon, Sparkles } from "lucide-react";
 import { generatePlan, adjustPlan } from "../services/api";
-import axios from "axios";
 import { useToast } from "../components/ToastContext";
-import { API_BASE_URL } from "../services/apiConfig";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<"daily" | "history">("daily");
@@ -22,30 +20,12 @@ const Dashboard = () => {
   
   const user = JSON.parse(localStorage.getItem("userInfo") || "{}");
 
-  // --- BIO-VAULT SAVE LOGIC (FIXED ENDPOINT) ---
-  const saveToVault = async (aiResponse: any, formData: any) => {
-    try {
-      await axios.post(`${API_BASE_URL}/plans/save`, {
-        userId: user._id,
-        formData: formData,
-        // Ensure aiResponse is a string to match your IPlan model
-        aiResponse: typeof aiResponse === 'string' ? aiResponse : JSON.stringify(aiResponse)
-      });
-      console.log("📁 Bio-Vault synchronized successfully.");
-    } catch (error) {
-      console.error("Failed to archive plan to vault:", error);
-    }
-  };
-
   const handleGenerate = async (data: any) => {
     setLoading(true);
     setLastUsedData(data); // Capture the Age, Weight, Goal, etc.
     try {
       const result = await generatePlan(data);
       setPlan(result);
-      
-      // AUTO-SAVE: Send the new plan to the database
-      await saveToVault(result, data);
       showToast("Bio-Protocol generated & saved!");
     } catch (error) {
       showToast("Error generating plan. Please try again.", "error");
@@ -59,9 +39,6 @@ const Dashboard = () => {
     try {
       const updatedPlan = await adjustPlan(plan, adjustment, lastUsedData);
       setPlan(updatedPlan); 
-      
-      // AUTO-SAVE: Save the updated/adjusted version too
-      await saveToVault(updatedPlan, lastUsedData);
 
       setAdjustment("");
       showToast("Bio-Vault Updated!");

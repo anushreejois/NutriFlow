@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
+import { clerkClient } from '@clerk/express';
 import User from '../models/User';
+import { getCurrentUserId } from '../middleware/auth';
 
 // @desc    Update 21-Day Reset Progress
 // @route   PUT /api/nutriflow/v1/users/reset-progress
 export const updateResetProgress = async (req: Request, res: Response) => {
   try {
-    const { userId, dayNumber } = req.body; 
-
-    const user = await User.findById(userId);
+    const { dayNumber } = req.body;
+    const user = await User.findById(getCurrentUserId(req));
 
     if (user) {
       if (!user.resetDaysCompleted.includes(dayNumber)) {
@@ -36,7 +37,7 @@ export const updateResetProgress = async (req: Request, res: Response) => {
 // @route   GET /api/nutriflow/v1/users/profile/:id
 export const getUserProfile = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.params.id).select('-password'); 
+    const user = await User.findById(getCurrentUserId(req)).select('-password');
     if (user) {
       res.json(user);
     } else {
@@ -51,9 +52,8 @@ export const getUserProfile = async (req: Request, res: Response) => {
 // @route   PUT /api/nutriflow/v1/users/cycle-data
 export const updateCycleData = async (req: Request, res: Response) => {
   try {
-    const { userId, date, length } = req.body; 
-
-    const user = await User.findById(userId);
+    const { date, length } = req.body;
+    const user = await User.findById(getCurrentUserId(req));
 
     if (user) {
       if (date) user.lastPeriodDate = date;
@@ -78,12 +78,19 @@ export const updateCycleData = async (req: Request, res: Response) => {
 export const updateUserProfile = async (req: Request, res: Response) => {
   try {
     // --- ADDED GENDER, DIETARY, AND NEW TRACKING FIELDS HERE ---
-    const { 
-      userId, age, weight, height, dietaryPreference, goal, activityLevel, 
-      gender, dietary, gymRoutine 
+    const {
+      age,
+      weight,
+      height,
+      dietaryPreference,
+      goal,
+      activityLevel,
+      gender,
+      dietary,
+      gymRoutine,
     } = req.body;
     
-    const user = await User.findById(userId);
+    const user = await User.findById(getCurrentUserId(req));
 
     if (user) {
       user.age = age || user.age;
@@ -129,34 +136,48 @@ export const updateUserProfile = async (req: Request, res: Response) => {
 // @route   POST /api/nutriflow/v1/users/sync
 export const syncClerkUser = async (req: Request, res: Response) => {
   try {
-    const { clerkId, email, name } = req.body;
-    
-    // 1. Check if user already exists by their Clerk ID
-    let user = await User.findOne({ clerkId });
+    const clerkId = req.authenticatedClerkId;
+    if (!clerkId) {
+      return res.status(401).json({ message: 'Authentication required.' });
+    }
 
+    const clerkUser = await clerkClient.users.getUser(clerkId);
+    const primaryEmail = clerkUser.emailAddresses.find(
+      ({ id }) => id === clerkUser.primaryEmailAddressId,
+    );
+    if (!primaryEmail || primaryEmail.verification?.status !== 'verified') {
+      return res.status(403).json({ message: 'A verified email address is required.' });
+    }
+
+    const email = primaryEmail.emailAddress.toLowerCase();
+    const name = [clerkUser.firstName, clerkUser.lastName]
+      .filter(Boolean)
+      .join(' ')
+      .trim() || email.split('@')[0];
+
+    let user = await User.findOne({ clerkId }).select('-password');
     if (!user) {
-      // 2. If no Clerk ID, check if they exist from the old email/password system
       user = await User.findOne({ email });
-      
-      if (user) {
-        // Link their old account to their new Clerk account
-        user.clerkId = clerkId;
-        user.name = name || user.name;
-        await user.save();
-      } else {
-        // 3. Completely new user! Create a fresh profile.
-        user = await User.create({ clerkId, email, name });
+      if (user?.clerkId && user.clerkId !== clerkId) {
+        return res.status(409).json({ message: 'This account is already linked to another identity.' });
       }
-    } else {
-      // 4. Existing user — keep name in sync with Clerk profile
-      if (name && user.name !== name) {
+
+      if (user) {
+        user.clerkId = clerkId;
         user.name = name;
         await user.save();
+      } else {
+        user = await User.create({ clerkId, email, name });
       }
+    } else if (user.name !== name || user.email !== email) {
+      user.name = name;
+      user.email = email;
+      await user.save();
     }
 
     res.json(user);
   } catch (error) {
+    console.error('Failed to sync authenticated Clerk user:', error);
     res.status(500).json({ message: 'Server Error syncing user' });
   }
 };

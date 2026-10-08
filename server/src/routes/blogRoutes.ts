@@ -1,5 +1,7 @@
 import express from 'express';
 import Blog from '../models/Blog';
+import User from '../models/User';
+import { requireClerkAuth, requireCurrentUser, getCurrentUserId } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -15,13 +17,16 @@ router.get('/', async (req, res) => {
 });
 
 // 2. CREATE A NEW BLOG
-router.post('/', async (req, res) => {
+router.post('/', requireClerkAuth, requireCurrentUser, async (req, res) => {
   try {
-    const { title, author, userId, category, content, excerpt } = req.body;
+    const { title, category, content, excerpt } = req.body;
+    const userId = getCurrentUserId(req);
+    const user = await User.findById(userId).select('name');
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
     const newBlog = new Blog({
       title,
-      author,
+      author: user.name,
       userId,
       category,
       content,
@@ -37,7 +42,7 @@ router.post('/', async (req, res) => {
 });
 
 // 3. OPTIONAL: LIKE A BLOG
-router.put('/:id/like', async (req, res) => {
+router.put('/:id/like', requireClerkAuth, async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
     if (blog) {

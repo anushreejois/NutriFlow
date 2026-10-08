@@ -1,14 +1,15 @@
 import express from 'express';
 import User from '../models/User';
 import DailyLog from '../models/DailyLog';
+import { getCurrentUserId } from '../middleware/auth';
 
 const router = express.Router();
 
 // 1. UPDATE GYM SPLIT
 router.put('/split', async (req, res) => {
   try {
-    const { userId, gymRoutine } = req.body;
-    const user = await User.findById(userId);
+    const { gymRoutine } = req.body;
+    const user = await User.findById(getCurrentUserId(req));
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     user.gymRoutine = gymRoutine;
@@ -22,7 +23,8 @@ router.put('/split', async (req, res) => {
 // 2. SAVE DAILY LOG & RUN DUOLINGO STREAK ENGINE
 router.post('/log', async (req, res) => {
   try {
-    const { userId, date, mealStatus, gymCompleted } = req.body;
+    const { date, mealStatus, gymCompleted } = req.body;
+    const userId = getCurrentUserId(req);
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -122,7 +124,10 @@ router.post('/log', async (req, res) => {
 // 3. GET TODAY'S LOG (So it stays when you refresh the page)
 router.get('/log/:userId/:date', async (req, res) => {
   try {
-    const log = await DailyLog.findOne({ userId: req.params.userId, date: req.params.date });
+    const log = await DailyLog.findOne({
+      userId: getCurrentUserId(req),
+      date: req.params.date,
+    });
     res.json(log || { mealStatus: "none", gymCompleted: false });
   } catch (error) {
     res.status(500).json({ error: 'Server error fetching log' });
@@ -132,7 +137,8 @@ router.get('/log/:userId/:date', async (req, res) => {
 // 4. GET WEEKLY SUMMARY (Calculates real stats!)
 router.get('/summary/:userId/:startDate/:endDate', async (req, res) => {
   try {
-    const { userId, startDate, endDate } = req.params;
+    const { startDate, endDate } = req.params;
+    const userId = getCurrentUserId(req);
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: 'User not found' });
 

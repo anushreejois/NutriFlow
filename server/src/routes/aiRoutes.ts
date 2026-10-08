@@ -1,13 +1,21 @@
 import express from 'express';
-import { generatePlan } from '../services/gemini'; // Your Groq service
+import { generatePlan } from '../services/gemini';
 import Plan from '../models/Plan';
+import { getCurrentUserId } from '../middleware/auth';
+import {
+  NutritionPlan,
+  parseNutritionPlan,
+  parseWellnessProfile,
+  PlanValidationError,
+  WellnessProfile,
+} from '../services/planValidation';
 
 const router = express.Router();
 
 // 1. GET ALL PLANS FOR A USER (Fixes the 404 in BioVault)
 router.get('/:userId', async (req, res) => {
   try {
-    const plans = await Plan.find({ userId: req.params.userId }).sort({ createdAt: -1 });
+    const plans = await Plan.find({ userId: getCurrentUserId(req) }).sort({ createdAt: -1 });
     res.json(plans);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch bio-vault history" });
@@ -17,7 +25,11 @@ router.get('/:userId', async (req, res) => {
 // 1b. DELETE A PLAN BY ID
 router.delete('/:planId', async (req, res) => {
   try {
-    await Plan.findByIdAndDelete(req.params.planId);
+    const plan = await Plan.findOneAndDelete({
+      _id: req.params.planId,
+      userId: getCurrentUserId(req),
+    });
+    if (!plan) return res.status(404).json({ error: "Plan not found" });
     res.json({ message: "Plan deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to delete plan" });
@@ -27,70 +39,99 @@ router.delete('/:planId', async (req, res) => {
 // 2. SAVE A PLAN TO THE VAULT
 router.post('/save', async (req, res) => {
   try {
-    const { userId, formData, aiResponse } = req.body;
+    const formData = parseWellnessProfile(req.body?.formData);
+    const aiResponse = parseNutritionPlan(req.body?.aiResponse);
     const newPlan = await Plan.create({
-      userId,
+      userId: getCurrentUserId(req),
       formData,
-      aiResponse,
+      aiResponse: JSON.stringify(aiResponse),
       date: new Date()
     });
     res.status(201).json(newPlan);
   } catch (error) {
+    if (error instanceof PlanValidationError) {
+      return res.status(400).json({ error: error.message });
+    }
+    console.error("Failed to save validated plan:", error);
     res.status(500).json({ error: "Failed to save plan to database" });
   }
 });
 
 // 3. GENERATE INITIAL PLAN
 router.post('/generate-plan', async (req, res) => {
+  let formData: WellnessProfile;
   try {
-    const { userId, ...formData } = req.body;
-    const aiRawText = await generatePlan(req.body);
-
-    if (!aiRawText) return res.status(500).json({ error: "Generation failed" });
-
-    // Save to DB immediately if userId is provided
-    if (userId) {
-      await Plan.create({
-        userId,
-        formData,
-        aiResponse: aiRawText
-      });
-      console.log("✅ Plan auto-saved to history");
+    const submittedData = { ...req.body };
+    delete submittedData.userId;
+    formData = parseWellnessProfile(submittedData);
+  } catch (error) {
+    if (error instanceof PlanValidationError) {
+      return res.status(400).json({ error: error.message });
     }
+    throw error;
+  }
 
-    res.json(JSON.parse(aiRawText));
-  } catch (error: any) {
-    res.status(500).json({ error: "Failed to generate or save plan" });
+  let plan: NutritionPlan;
+  try {
+    plan = await generatePlan(formData);
+  } catch (error) {
+    console.error("AI plan generation failed validation or provider request:", error);
+    return res.status(502).json({ error: "A safe, complete plan could not be generated. Please try again." });
+  }
+
+  try {
+    await Plan.create({
+      userId: getCurrentUserId(req),
+      formData,
+      aiResponse: JSON.stringify(plan)
+    });
+    return res.json(plan);
+  } catch (error) {
+    console.error("Failed to save generated plan:", error);
+    return res.status(500).json({ error: "The plan was generated but could not be saved." });
   }
 });
 
 // 4. ADJUST EXISTING PLAN
 router.post('/adjust-plan', async (req, res) => {
+  let formData: WellnessProfile;
+  let currentPlan: NutritionPlan;
+  let adjustmentRequest: string;
   try {
-    const { currentPlan, adjustmentRequest, userId, formData } = req.body;
-
-    const prompt = `
-      Current Plan: ${JSON.stringify(currentPlan)}
-      Adjustment: "${adjustmentRequest}"
-      Respond in exact JSON format.
-    `;
-
-    const updatedRawText = await generatePlan(prompt);
-    
-    if (!updatedRawText) return res.status(500).json({ error: "Adjustment failed" });
-
-    // Save the adjusted version as a new entry in history
-    if (userId) {
-      await Plan.create({
-        userId,
-        formData,
-        aiResponse: updatedRawText
-      });
+    formData = parseWellnessProfile(req.body?.formData);
+    currentPlan = parseNutritionPlan(req.body?.currentPlan);
+    if (typeof req.body?.adjustmentRequest !== "string") {
+      throw new PlanValidationError("adjustmentRequest must be a string.");
     }
+    adjustmentRequest = req.body.adjustmentRequest.trim();
+    if (!adjustmentRequest || adjustmentRequest.length > 500) {
+      throw new PlanValidationError("adjustmentRequest must be between 1 and 500 characters.");
+    }
+  } catch (error) {
+    if (error instanceof PlanValidationError) {
+      return res.status(400).json({ error: error.message });
+    }
+    throw error;
+  }
 
-    res.json(JSON.parse(updatedRawText));
-  } catch (error: any) {
-    res.status(500).json({ error: "Failed to adjust plan" });
+  let plan: NutritionPlan;
+  try {
+    plan = await generatePlan(formData, { currentPlan, request: adjustmentRequest });
+  } catch (error) {
+    console.error("AI plan adjustment failed validation or provider request:", error);
+    return res.status(502).json({ error: "A safe, complete plan could not be generated. Please try again." });
+  }
+
+  try {
+    await Plan.create({
+      userId: getCurrentUserId(req),
+      formData,
+      aiResponse: JSON.stringify(plan)
+    });
+    return res.json(plan);
+  } catch (error) {
+    console.error("Failed to save adjusted plan:", error);
+    return res.status(500).json({ error: "The adjusted plan was generated but could not be saved." });
   }
 });
 

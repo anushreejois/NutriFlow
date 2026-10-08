@@ -58,7 +58,6 @@ const NutriBot = () => {
         message: input,
         history: updatedHistory, // Sending the context for follow-up questions
         userData: {
-          name: user.name || "User",
           gender: user.gender || "male",
           goal: user.goal || "maintain",
           dietary: user.dietary || "standard",
@@ -119,7 +118,7 @@ const NutriBot = () => {
                 <div>
                   <h3 className="font-black text-lg flex items-center gap-2">
                     NutriBot
-                    <span className="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Grok 2.0</span>
+                    <span className="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">AI Wellness</span>
                   </h3>
                   <p className="text-[10px] text-sage-300 font-bold uppercase tracking-widest">Bio-Intelligence</p>
                 </div>
@@ -178,6 +177,7 @@ const NutriBot = () => {
               <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800 p-2 pl-5 rounded-[2rem] border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-sage-500 transition-all">
                 <input
                   type="text"
+                  maxLength={2000}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
@@ -194,6 +194,9 @@ const NutriBot = () => {
                   <Send size={18} />
                 </motion.button>
               </div>
+              <p className="mt-3 px-2 text-[10px] leading-relaxed text-gray-500 dark:text-gray-400">
+                Messages and selected wellness context are sent to Groq. NutriBot provides general information, not medical advice; for urgent or severe symptoms, contact local emergency services.
+              </p>
             </div>
           </motion.div>
         )}
