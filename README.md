@@ -131,8 +131,8 @@ The client is a Vite single-page application and the API is a separate Express
 service. Deploy the client to Vercel and the API to Render; the Vercel rewrite
 in `client/vercel.json` supports direct navigation to React Router routes.
 
-1. Create a Render Web Service from this repository using the Blueprint in
-   `server/render.yaml`. It builds the API with `npm ci && npm run build` and
+1. Create a Render Blueprint from the repository-root `render.yaml`. It builds
+   the API with `npm ci && npm run build` and
    starts it with `npm start`.
 2. Add the required API environment values in Render:
    `MONGO_URI`, `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `GROQ_API_KEY`,
