@@ -125,6 +125,41 @@ To stop the containers, run `docker compose down`. To rebuild after changing
 frontend build-time settings in `client/.env`, run the `up --build` command
 again.
 
+### Deploy to Vercel and Render
+
+The client is a Vite single-page application and the API is a separate Express
+service. Deploy the client to Vercel and the API to Render; the Vercel rewrite
+in `client/vercel.json` supports direct navigation to React Router routes.
+
+1. Create a Render Blueprint from the repository-root `render.yaml`. It builds
+   the API with `npm ci && npm run build` and
+   starts it with `npm start`.
+2. Add the required API environment values in Render:
+   `MONGO_URI`, `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `GROQ_API_KEY`,
+   `GROK_BOT_KEY`, and `CLIENT_URL`. Set `CLIENT_URL` to the final Vercel
+   production origin (for example, `https://your-app.vercel.app`). Do not put
+   secret values in this repository. Use matching Clerk keys from the same
+   production Clerk application.
+3. In Vercel, import this repository and set the project Root Directory to
+   `client`. Use `npm run build` as the build command and `dist` as the output
+   directory. Add these client environment variables for Production:
+   `VITE_CLERK_PUBLISHABLE_KEY` (the matching Clerk production publishable key)
+   and `VITE_API_URL` (the API origin followed by `/api`, for example
+   `https://nutriflow-api.onrender.com/api`). Set `VITE_ONESIGNAL_APP_ID` if
+   browser push notifications are configured.
+4. After Vercel gives the project its production URL, set that exact origin as
+   Render's `CLIENT_URL` and add it to the allowed origins in the matching
+   Clerk production application. Redeploy the API if `CLIENT_URL` changed.
+5. Ensure MongoDB Atlas network access allows connections from the API host.
+   Prefer a restricted/static outbound IP when available; avoid opening the
+   database to all IP addresses. Deploy the Vercel client again after changing
+   its environment variables.
+
+The API must remain independently reachable from the browser; `VITE_API_URL`
+is embedded into the client bundle at build time and must not contain secrets.
+Use the same Clerk application for the browser publishable key and the API
+secret/publishable keys.
+
 ### 1️⃣ Clone the Repository
 
 ```bash
